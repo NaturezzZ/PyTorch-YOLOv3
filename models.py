@@ -25,6 +25,7 @@ def create_modules(module_defs):
 
         if module_def["type"] == "convolutional":
             bn = int(module_def["batch_normalize"])
+            #print(module_def["filters"])
             filters = int(module_def["filters"])
             kernel_size = int(module_def["size"])
             pad = (kernel_size - 1) // 2

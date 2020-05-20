@@ -24,9 +24,9 @@ from matplotlib.ticker import NullLocator
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--image_folder", type=str, default="data/samples", help="path to dataset")
-    parser.add_argument("--model_def", type=str, default="config/yolov3.cfg", help="path to model definition file")
-    parser.add_argument("--weights_path", type=str, default="weights/yolov3.weights", help="path to weights file")
-    parser.add_argument("--class_path", type=str, default="data/coco.names", help="path to class label file")
+    parser.add_argument("--model_def", type=str, default="config/yolov3-custom.cfg", help="path to model definition file")
+    parser.add_argument("--weights_path", type=str, default="checkpoints/yolov3_ckpt_51.pth", help="path to weights file")
+    parser.add_argument("--class_path", type=str, default="data/custom/classes.names", help="path to class label file")
     parser.add_argument("--conf_thres", type=float, default=0.8, help="object confidence threshold")
     parser.add_argument("--nms_thres", type=float, default=0.4, help="iou thresshold for non-maximum suppression")
     parser.add_argument("--batch_size", type=int, default=1, help="size of the batches")
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     print(opt)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+    #device = torch.device("cpu")
     os.makedirs("output", exist_ok=True)
 
     # Set up model
@@ -70,6 +70,7 @@ if __name__ == "__main__":
     prev_time = time.time()
     for batch_i, (img_paths, input_imgs) in enumerate(dataloader):
         # Configure input
+        print(img_paths)
         input_imgs = Variable(input_imgs.type(Tensor))
 
         # Get detections
@@ -116,21 +117,23 @@ if __name__ == "__main__":
 
                 box_w = x2 - x1
                 box_h = y2 - y1
-
+                print("\t+ x_1: %.5f, y_1: %.5f" % (x1, y1))
                 color = bbox_colors[int(np.where(unique_labels == int(cls_pred))[0])]
                 # Create a Rectangle patch
                 bbox = patches.Rectangle((x1, y1), box_w, box_h, linewidth=2, edgecolor=color, facecolor="none")
                 # Add the bbox to the plot
                 ax.add_patch(bbox)
                 # Add label
+                '''
                 plt.text(
                     x1,
                     y1,
                     s=classes[int(cls_pred)],
-                    color="white",
+                    color="blue",
                     verticalalignment="top",
                     bbox={"color": color, "pad": 0},
                 )
+                '''
 
         # Save generated image with detections
         plt.axis("off")

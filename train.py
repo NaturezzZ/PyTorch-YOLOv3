@@ -42,7 +42,7 @@ if __name__ == "__main__":
     logger = Logger("logs")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+    #device = torch.device("cpu")
     os.makedirs("output", exist_ok=True)
     os.makedirs("checkpoints", exist_ok=True)
 
@@ -62,6 +62,8 @@ if __name__ == "__main__":
             model.load_state_dict(torch.load(opt.pretrained_weights))
         else:
             model.load_darknet_weights(opt.pretrained_weights)
+    para = sum([np.prod(list(p.size())) for p in model.parameters()])
+    print('Model {} : params: {:4f}M'.format(model._get_name(), para * 4 / 1000 / 1000))
 
     # Get dataloader
     dataset = ListDataset(train_path, augment=True, multiscale=opt.multiscale_training)
@@ -147,7 +149,7 @@ if __name__ == "__main__":
 
             model.seen += imgs.size(0)
 
-        if epoch % opt.evaluation_interval == 0:
+        if epoch % opt.evaluation_interval == 1:
             print("\n---- Evaluating Model ----")
             # Evaluate the model on the validation set
             precision, recall, AP, f1, ap_class = evaluate(
@@ -175,4 +177,4 @@ if __name__ == "__main__":
             print(f"---- mAP {AP.mean()}")
 
         if epoch % opt.checkpoint_interval == 0:
-            torch.save(model.state_dict(), f"checkpoints/yolov3_ckpt_%d.pth" % epoch)
+            torch.save(model.state_dict(), f"checkpoints/yolov3_ckpt_%d.pth" % epoch+51)
